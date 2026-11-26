@@ -1,0 +1,20 @@
+assumptions: >-
+  Estimación us-east-1 para un mes de 30 días. EC2 y RDS se presupuestan 730 h,
+  un stream de pruebas 60 h en total. En cada día activo, 2000 búsquedas,
+  250 reservas y 30 cancelaciones. Hasta cuatro replays adicionales de 21000
+  registros, con mensajes de menos de 5 KB. Hasta 360 refrescos de 30 s a 1 GB.
+  Retención de Kinesis 24 h. S3 conserva raw y versiones del Parquet durante el
+  periodo de evaluación. Se presupuestan 2 GB-mes y el primer mes de operaciones.
+  Dólares estimados antes de créditos o impuestos.
+line_items:
+  - {service: EC2, detail: "t3.micro Linux × 730 h × 0.0104 USD/h", monthly_usd: 7.59}
+  - {service: EBS, detail: "8 GiB gp3 × 0.08 USD/GiB-mes", monthly_usd: 0.64}
+  - {service: RDS, detail: "PostgreSQL db.t4g.micro Single-AZ × 730 h × 0.016 y 20 GiB gp2 × 0.115", monthly_usd: 13.98}
+  - {service: VPC IPv4, detail: "Hasta dos IPv4 públicas durante 730 h a 0.005 USD/h", monthly_usd: 7.30}
+  - {service: Kinesis, detail: "Un shard provisionado × 60 h × 0.015 más unidades PUT", monthly_usd: 0.91}
+  - {service: Firehose, detail: "Hasta 152400 registros redondeados a 5 KB por unidad", monthly_usd: 0.03}
+  - {service: Lambda, detail: "0.18 para 360 refrescos y 0.07 para consumo en vivo y solicitudes", monthly_usd: 0.25}
+  - {service: S3, detail: "2 GB-mes más lecturas, escrituras y listados", monthly_usd: 0.12}
+  - {service: Athena, detail: "Hasta 20 GB escaneados al mes a 5 USD/TB", monthly_usd: 0.10}
+  - {service: Glue Data Catalog, detail: "Cinco tablas y sus particiones dentro del tramo gratuito del catálogo", monthly_usd: 0.00}
+  - {service: CloudWatch, detail: "Margen para 0.1 GB de ingesta de logs más almacenamiento", monthly_usd: 0.06}

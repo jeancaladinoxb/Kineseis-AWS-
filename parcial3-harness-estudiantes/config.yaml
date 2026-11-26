@@ -1,0 +1,12 @@
+team_id: team01
+seed: 417
+backend:
+  base_url: http://YOUR-EC2-IP:8000
+aws:
+  region: us-east-1
+  kinesis_stream: live-reservations
+  raw_events_uri: s3://midterm-kinesis-jarl-100093/raw/events/
+  athena_workgroup: airline-star
+  athena_database: airline_star
+  athena_output: s3://midterm-kinesis-jarl-100093/athena-results/
+cost_projection_file: cost_projection_completa.yaml

@@ -1,0 +1,8 @@
+assumptions: "Región us-east-1. Completar con búsquedas por día, reservas por día y horas mensuales del stream."
+line_items:
+  - {service: "Kinesis", detail: "Kinesis Data Streams", monthly_usd: 29.80}
+  - {service: "Lambda", detail: "Consumidor en vivo y refresco del esquema estrella", monthly_usd: 0.00}
+  - {service: "S3", detail: "Eventos JSON y tablas Parquet", monthly_usd: 0.00}
+  - {service: "Firehose", detail: "Entrega de eventos de Kinesis a S3", monthly_usd: 1.38}
+  - {service: "Athena", detail: "Consultar a la base de datos", monthly_usd: 1.38}
+  - {service: "Glue", detail: "20 objetos y 1000 solicitudes mensuales estimadas; Lambda registra las particiones", monthly_usd:1.50}

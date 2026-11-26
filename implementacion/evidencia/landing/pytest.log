@@ -1,0 +1,21 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/test_1_stream.py::test_events_reach_landing_zone
+  /Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes/airline_data/events.py:202: Pandas4Warning: Series.dt.dayofweek is deprecated and will be removed in a future version. Use Series.dt.day_of_week instead.
+    ev["is_weekend"] = pd.to_datetime(ev.date).dt.dayofweek >= 5
+
+tests/test_1_stream.py::test_events_reach_landing_zone
+  /Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes/airline_data/events.py:47: Pandas4Warning: DatetimeIndex.dayofweek is deprecated and will be removed in a future version. Use DatetimeIndex.day_of_week instead.
+    out["weekday"] = days.dayofweek + 1
+
+tests/test_1_stream.py::test_events_reach_landing_zone
+  /Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes/airline_data/events.py:50: Pandas4Warning: DatetimeIndex.dayofweek is deprecated and will be removed in a future version. Use DatetimeIndex.day_of_week instead.
+    out["is_weekend"] = days.dayofweek >= 5
+
+tests/test_1_stream.py: 1826 warnings
+  /Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes/airline_data/events.py:57: Pandas4Warning: Timestamp.dayofweek is deprecated and will be removed in a future version. Use Timestamp.day_of_week instead.
+    dow = d.dayofweek
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+HARNESS SCORE: 4.0 / 70.0
+1 passed, 1829 warnings in 101.35s (0:01:41)

@@ -1,0 +1,21 @@
+# Entornos y cachés
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# Secretos: nunca subir llaves ni variables de entorno
+*.pem
+.env
+.env.*
+credentials*
+
+# Material del enunciado (no es entregable del equipo)
+parcial32026-2-EN.pdf
+parcial32026-2-EN.docx
+parcial3-harness-estudiantes.zip
+
+# Identificadores de infraestructura locales
+implementacion/ops/local.env

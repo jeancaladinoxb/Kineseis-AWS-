@@ -1,0 +1,57 @@
+Actúa como ingeniero de software y de datos responsable de completar mi tercer parcial de Big Data. Trabaja sobre mi sistema de reservas existente, despliégalo en mi entorno de AWS Learner Lab y verifica su funcionamiento con el harness del profesor. Necesito poder defender lo que construiste: explícame las decisiones importantes y muéstrame cómo comprobarlas.
+
+REGLA DE AUTORIZACIÓN
+
+Puedes inspeccionar el proyecto, implementar los requisitos explícitos, desplegar los cambios previstos en mis diagramas y ejecutar las pruebas. Si tienes una sugerencia, una mejora opcional o una alternativa de arquitectura, pregúntame antes de aplicarla. Dime qué propones, por qué y qué impacto tendría. Si encuentras una contradicción entre mis diagramas, el enunciado y el sistema desplegado, identifica el punto exacto y espera mi decisión para esa parte. Continúa con el trabajo independiente que sí esté definido.
+
+1. ANALIZA LO EXISTENTE EN ESTE ORDEN
+
+Primero revisa el proyecto del segundo corte. La ruta esperada en mi Mac es:
+"/Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 2"
+
+Si la carpeta tiene otro nombre, localízala dentro de mi directorio de Big Data. Identifica el frontend, el backend, los endpoints existentes, el esquema PostgreSQL, el manejo de reservas y el procedimiento de despliegue. Sigue al menos una búsqueda y una reserva desde la interfaz hasta la base de datos para entender el flujo real.
+
+Después revisa el tercer corte:
+"/Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes"
+
+Lee el enunciado, los contratos, las pruebas, los fixtures, thresholds.yaml, config.yaml, cost_projection.yaml y los archivos de referencia. Localiza también, dentro de Corte 3, mi diagrama de datos y mi diagrama de arquitectura AWS/EC2. Si alguno no está disponible, pídeme ese archivo antes de implementar la parte que depende de él. Revisa qué exige cada requisito de R1 a R12 y cómo lo mide el harness.
+
+Finalmente, usa la AWS CLI ya configurada en mi Mac para verificar la cuenta, región, recursos y permisos efectivos. Contrasta el código local con la versión que está ejecutándose en EC2. Antes de editar, dame un resumen breve de qué existe, qué falta y dónde harás los cambios. Puedes avanzar directamente con lo que ya está autorizado.
+
+2. REUTILIZA MIS RECURSOS
+
+- EC2 existente: airline-api-server. Allí ya corre parte de la gestión de reservas. Complementa esa aplicación y conserva sus funcionalidades.
+- Instancia RDS PostgreSQL existente: airline-db.
+- Base de datos dentro de PostgreSQL: midterm2. Verifica la conexión que utiliza el backend antes de aplicar migraciones.
+- Región prevista: us-east-1. Confírmala con la configuración real.
+- Reutiliza recursos existentes cuando coincidan con los diagramas. Antes de crear uno, comprueba si ya existe. Si el nombre del stream, bucket o workgroup difiere entre el dibujo y el harness, resuelve cuál es el recurso correcto antes de desplegar. Los valores YOUR-BUCKET y YOUR-EC2-IP son marcadores.
+- R12 ya pasó con mi cost_projection.yaml. La configuración local y ref/ usan la seed 417. Conserva ese estado y señala que está pendiente confirmar si 417 es la semilla oficial del equipo, salvo que encuentres la asignación documentada.
+
+3. RESPETA MIS DOS DIAGRAMAS Y LA SEPARACIÓN DE RESPONSABILIDADES
+
+Frontend: presentación, interacción, llamadas HTTP y visualización de respuestas. Mantén en el backend la lógica de negocio, validación de operaciones, publicación de eventos y acceso a datos. Los endpoints administrativos, las credenciales AWS y la conexión PostgreSQL pertenecen al lado del servidor. Limita los cambios visuales a lo que el parcial realmente requiera.
+
+Backend en EC2: conserva la búsqueda y la gestión de reservas existentes. Implementa los endpoints y contratos del apéndice A, incluidos cancelación, analítica en vivo, inicio de refresco y consulta del estado. Una creación o cancelación exitosa debe emitir el evento correspondiente. Respeta los nombres de campos, códigos HTTP, timestamps UTC, claves de partición y exclusión de datos personales.
+
+Camino en vivo: backend → Kinesis Data Streams → Lambda consumidora → PostgreSQL midterm2 en airline-db. La API consulta ese estado mediante GET /analytics/live?window=5. Calcula la ventana móvil usando event_ts, contempla reintentos sin inflar los conteos y verifica que los eventos antiguos queden fuera. Los nuevos deben reflejarse en un máximo de 10 segundos.
+
+Camino histórico: Kinesis → Amazon Data Firehose → S3 raw/ en JSON, con entrega en un máximo de 5 minutos. Una segunda Lambda en Python realiza el refresco por microlotes: lee los eventos y los CSV de referencia, deduplica por event_id, resuelve las claves y la versión histórica de cada ruta, y escribe Parquet en S3. El refresco debe ser idempotente y terminar en un máximo de 15 minutos. Implementa su activación y seguimiento según el contrato.
+
+Modelo de datos: reproduce mi esquema con fact_search, fact_booking_event, dim_date, dim_route y dim_fare_class. Respeta el grano, las medidas, las relaciones, el calendario 2023–2027 y la vigencia de dim_route como SCD tipo 2. Registra las tablas y las particiones mensuales de fact_search en Glue Data Catalog. Athena debe poder responder Q1–Q8 con el límite por consulta exigido.
+
+4. DESPLIEGA DE FORMA REVERSIBLE
+
+Respeta los cambios locales y los datos existentes. Usa migraciones revisables y conserva una vía de reversión antes de actualizar la aplicación de EC2. No reemplaces la instancia, no recrees midterm2 y no borres datos existentes. Pídeme autorización antes de cualquier acción destructiva, de cambiar controles de acceso existentes o de introducir servicios o costos fuera de la arquitectura aprobada. Mantén los secretos fuera del repositorio, los reportes y el chat.
+
+Entrega los scripts solicitados para crear y eliminar el stream de pruebas. Debe ser provisionado, con un shard, 24 horas de retención y sin enhanced fan-out. Evita dejar recursos de prueba facturando innecesariamente y conserva el entorno durante la verificación completa.
+
+5. VERIFICA EL SISTEMA Y ENTREGA EVIDENCIA
+
+- Empieza con una prueba de extremo a extremo: una búsqueda real mediante la API debe producir exactamente un search_performed en el stream con la clave de partición correcta.
+- Ejecuta las pruebas por bloques mientras implementas. Antes de la corrida integral, verifica que config.yaml apunta a mis recursos del laboratorio, porque el harness introduce eventos y llama a la API.
+- Ejecuta la suite completa desde el proyecto del harness y su entorno virtual. Guarda el comando, el resultado real por requisito, report.md y report.json. Comprueba que los reportes finales corresponden a la corrida completa.
+- Corrige fallos de implementación y vuelve a probar. Conserva intactos las pruebas oficiales, sus umbrales y los datos esperados. Si un permiso del Learner Lab bloquea una prueba, identifica la operación denegada y explica exactamente qué quedó sin verificar.
+- Contrasta la proyección de costos con los recursos desplegados. Documenta las decisiones que exige la sección 5, su relación con los requisitos y los pilares Well-Architected. Conserva un registro de nuestra interacción para el anexo obligatorio de uso de IA.
+- Al finalizar, entrégame los archivos modificados, el resultado de R1–R12, cualquier pendiente y los pasos para reproducir el despliegue y las pruebas. Incluye una explicación breve que me permita seguir un evento desde una búsqueda en el frontend hasta su aparición en la vista en vivo y en Athena.
+
+Empieza ahora por inspeccionar Corte 2. Avanza en el orden indicado y consúltame antes de aplicar cualquier sugerencia.

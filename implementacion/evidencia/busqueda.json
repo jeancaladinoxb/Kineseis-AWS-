@@ -1,0 +1,21 @@
+{
+  "request_utc": "2026-11-26T02:09:27.737052+00:00",
+  "http": 200,
+  "base_url": "http://YOUR-EC2-IP:8000",
+  "stream": "live-reservations",
+  "matches": 1,
+  "visible_seconds": 1.611,
+  "partition_key": "smoke-17659eb29caf45eeaa3cdd9716311fed",
+  "search_results": 0,
+  "event": {
+    "event_id": "555e0ff3-3587-4d54-9c6c-6ed981248838",
+    "event_type": "search_performed",
+    "event_ts": "2026-11-26T02:09:27Z",
+    "schema_version": 1,
+    "session_id": "smoke-17659eb29caf45eeaa3cdd9716311fed",
+    "origin": "BAQ",
+    "destination": "MDE",
+    "travel_date": "2023-02-19",
+    "results_count": 0
+  }
+}

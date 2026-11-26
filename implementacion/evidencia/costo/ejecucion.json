@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/test_3_cost.py"
+  ],
+  "cwd": "/Users/jeancito/Documents/Universidad/Semestre 7/Big data/Corte 3/parcial corte/parcial3-harness-estudiantes",
+  "start_utc": "2026-11-26T00:24:06.822941+00:00",
+  "end_utc": "2026-11-26T00:24:08.535098+00:00",
+  "exit_code": 0,
+  "tests_recorded": 3,
+  "score": 5.0
+}

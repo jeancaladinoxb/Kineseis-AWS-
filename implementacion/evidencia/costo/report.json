@@ -1,0 +1,152 @@
+{
+  "meta": {
+    "team_id": "team01",
+    "seed": 417
+  },
+  "generated_at": "2026-11-25 19:24:08",
+  "points": 5.0,
+  "max_points": 70.0,
+  "requirements": [
+    {
+      "id": "R1",
+      "title": "Every API action emits one valid event",
+      "weight": 7,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R2",
+      "title": "No event loss under burst, API stays fast",
+      "weight": 6,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R3",
+      "title": "Live view fed by the stream (event time)",
+      "weight": 7,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R4",
+      "title": "Events reach the S3 landing zone",
+      "weight": 4,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R5",
+      "title": "Star schema tables per contract",
+      "weight": 7,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R6",
+      "title": "Star integrity (keys, orphans, duplicates)",
+      "weight": 5,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R7",
+      "title": "Business queries return the right numbers",
+      "weight": 11,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R8",
+      "title": "Dirty events handled, refresh in time",
+      "weight": 6,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R9",
+      "title": "Slowly changing dimension (type 2)",
+      "weight": 8,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R10",
+      "title": "Partition pruning and scan limit",
+      "weight": 4,
+      "points": 0.0,
+      "status": "not_verified",
+      "tests": [],
+      "evidence": [],
+      "warnings": []
+    },
+    {
+      "id": "R11",
+      "title": "Minimal Kinesis stream",
+      "weight": 3,
+      "points": 3.0,
+      "status": "passed",
+      "tests": [
+        {
+          "name": "test_stream_is_minimal",
+          "outcome": "passed",
+          "detail": ""
+        }
+      ],
+      "evidence": [
+        "stream: {'mode': 'PROVISIONED', 'open_shards': 1, 'retention_hours': 24, 'consumers': 0}"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "R12",
+      "title": "Cost projection",
+      "weight": 2,
+      "points": 2.0,
+      "status": "passed",
+      "tests": [
+        {
+          "name": "test_projection_within_budget",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "name": "test_projection_lists_the_services_used",
+          "outcome": "passed",
+          "detail": ""
+        }
+      ],
+      "evidence": [
+        "declared 30.98 USD/month; limit 50.00"
+      ],
+      "warnings": []
+    }
+  ]
+}

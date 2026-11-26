@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkyFlow - Reservas</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8;
+          --accent:#6366f1; --ok:#10b981; --bad:#f43f5e; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+           padding:14px 24px; background:var(--card); border-bottom:1px solid var(--line); }
+  .brand { font-weight:700; font-size:20px; }
+  .brand small { display:block; font-weight:400; font-size:12px; color:var(--muted); }
+  nav a { color:var(--muted); text-decoration:none; padding:8px 14px; border-radius:8px; font-size:14px; }
+  nav a.active { background:var(--accent); color:#fff; }
+  main { max-width:900px; margin:0 auto; padding:24px; display:grid; gap:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  h2 { margin:0 0 14px; font-size:17px; color:#a5b4fc; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; align-items:end; }
+  label { display:block; font-size:12px; color:var(--muted); font-weight:600; }
+  input, select { width:100%; margin-top:4px; padding:9px 12px; background:var(--bg); color:var(--text);
+                  border:1px solid var(--line); border-radius:8px; font-size:14px; }
+  input:focus, select:focus { outline:none; border-color:var(--accent); }
+  button { padding:10px 16px; border:0; border-radius:8px; background:var(--accent); color:#fff;
+           font-weight:600; font-size:14px; cursor:pointer; }
+  button:hover { filter:brightness(1.1); }
+  button.ok { background:var(--ok); }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+         padding:14px; margin-top:12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  .row.selected { border-color:var(--ok); box-shadow:0 0 0 1px var(--ok); }
+  .row .id { font-family:ui-monospace, Menlo, monospace; background:#312e81; color:#c7d2fe;
+             padding:2px 8px; border-radius:6px; font-size:12px; margin-right:8px; }
+  .muted { color:var(--muted); font-size:13px; }
+  #msg { min-height:20px; font-size:14px; margin:12px 0 0; }
+  #msg.error { color:var(--bad); } #msg.good { color:var(--ok); }
+  #confirmation { margin-top:12px; padding:14px; border:1px solid var(--ok); border-radius:10px; background:#064e3b55; }
+  #confirmation code { font-family:ui-monospace, Menlo, monospace; font-size:15px; word-break:break-all; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✈ SkyFlow <small>Airlines Management</small></div>
+  <nav><a class="active" href="/">Pasajeros</a><a href="/manager">Panel gerencial</a></nav>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Buscar vuelos disponibles</h2>
+    <div class="grid">
+      <label>Origen
+        <input data-testid="search-origin" id="origin" placeholder="BOG" autocomplete="off">
+      </label>
+      <label>Destino
+        <input data-testid="search-destination" id="destination" placeholder="MDE" autocomplete="off">
+      </label>
+      <label>Fecha
+        <input data-testid="search-date" id="date" type="date">
+      </label>
+      <button data-testid="search-submit" id="search" type="button">Buscar vuelos</button>
+    </div>
+    <div id="results" aria-live="polite">
+      <p class="muted">Realiza una búsqueda para ver los vuelos disponibles.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Reservar</h2>
+    <p id="selected" class="muted">Elige un vuelo de la lista con «Reservar».</p>
+    <div class="grid">
+      <label>Nombre del pasajero
+        <input data-testid="passenger-name" id="passenger" placeholder="Nombre y apellido" autocomplete="off">
+      </label>
+      <label>Clase
+        <select id="fare">
+          <option value="ECONOMY">Economy</option>
+          <option value="CLASSIC">Classic</option>
+          <option value="BUSINESS">Business</option>
+        </select>
+      </label>
+      <button data-testid="confirm-submit" id="confirm" type="button" class="ok">Confirmar reserva</button>
+    </div>
+    <p id="msg" role="status"></p>
+    <div id="confirmation" hidden>
+      <div class="muted">Reserva confirmada. Tu ID de reserva:</div>
+      <code data-testid="confirmation-id" id="confirmation-id"></code>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Mismo origen que la API (FastAPI sirve esta pagina). Para otro host: window.API_BASE = "http://..."
+  const API = window.API_BASE || "";
+  const $ = (id) => document.getElementById(id);
+  let selectedFlight = null;
+
+  function setMsg(text, kind) {
+    const m = $("msg");
+    m.textContent = text || "";
+    m.className = kind || "";
+  }
+
+  function el(tag, props, children) {
+    const e = document.createElement(tag);
+    Object.assign(e, props || {});
+    (children || []).forEach((c) => e.append(c));
+    return e;
+  }
+
+  function selectFlight(f, rowEl) {
+    selectedFlight = f;
+    document.querySelectorAll("#results .row").forEach((r) => r.classList.remove("selected"));
+    rowEl.classList.add("selected");
+    $("selected").textContent = "Vuelo seleccionado: " + f.flight_id + " (" + f.route + ", " + f.flight_date + ")";
+    setMsg("", "");
+  }
+
+  async function searchFlights() {
+    const origin = $("origin").value.trim();
+    const destination = $("destination").value.trim();
+    const date = $("date").value;
+    const box = $("results");
+    if (!origin || !destination || !date) {
+      box.replaceChildren(el("p", { className: "muted", textContent: "Completa origen, destino y fecha." }));
+      return;
+    }
+    box.replaceChildren(el("p", { className: "muted", textContent: "Buscando vuelos..." }));
+    try {
+      const url = API + "/flights/search?origin=" + encodeURIComponent(origin) +
+                  "&destination=" + encodeURIComponent(destination) + "&date=" + encodeURIComponent(date);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const flights = await res.json();
+      if (!Array.isArray(flights) || flights.length === 0) {
+        box.replaceChildren(el("p", { className: "muted",
+          textContent: "No hay vuelos disponibles para esa ruta y fecha. Prueba con otra fecha." }));
+        return;
+      }
+      box.replaceChildren(...flights.map((f) => {
+        const price = (Number(f.price_cents) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        const info = el("div", {}, [
+          el("div", {}, [el("span", { className: "id", textContent: f.flight_id }),
+                         el("strong", { textContent: f.route })]),
+          el("div", { className: "muted", textContent:
+            f.flight_date + " · Asientos disponibles: " + f.seats_available + " · Precio: $" + price }),
+        ]);
+        const btn = el("button", { type: "button", textContent: "Reservar" });
+        btn.setAttribute("data-testid", "reserve-button");
+        const row = el("div", { className: "row" }, [info, btn]);
+        row.setAttribute("data-testid", "flight-row");
+        btn.addEventListener("click", () => selectFlight(f, row));
+        return row;
+      }));
+    } catch (e) {
+      box.replaceChildren(el("p", { className: "muted", textContent: "No se pudo buscar: " + e.message }));
+    }
+  }
+
+  async function confirmReservation() {
+    $("confirmation").hidden = true;
+    if (!selectedFlight) { setMsg("Primero elige un vuelo con «Reservar».", "error"); return; }
+    const body = {
+      flight_id: selectedFlight.flight_id,
+      passenger_name: $("passenger").value.trim() || "Pasajero Anónimo",
+      fare_class: $("fare").value,
+    };
+    setMsg("Reservando...", "");
+    try {
+      const res = await fetch(API + "/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 201) {
+        $("confirmation-id").textContent = data.reservation_id;
+        $("confirmation").hidden = false;
+        setMsg("¡Reserva exitosa!", "good");
+      } else if (res.status === 409) {
+        setMsg("Ya no quedan cupos en ese vuelo.", "error");
+      } else if (res.status === 404) {
+        setMsg("Ese vuelo ya no existe.", "error");
+      } else {
+        setMsg("No se pudo reservar (HTTP " + res.status + ").", "error");
+      }
+    } catch (e) {
+      setMsg("Error de conexión: " + e.message, "error");
+    }
+  }
+
+  $("search").addEventListener("click", searchFlights);
+  $("confirm").addEventListener("click", confirmReservation);
+</script>
+</body>
+</html>
